@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const validatePassword = (pwd) => {
@@ -51,13 +53,22 @@ const Register = () => {
           onChange={(e) => setUsername(e.target.value)}
           className="w-full mb-4 p-2 border rounded"
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 p-2 border rounded"
-        />
+
+        <div className="relative mb-4">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded pr-10"
+          />
+          <div
+            className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-600"
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <AiOutlineEyeInvisible size={22} /> : <AiOutlineEye size={22} />}
+          </div>
+        </div>
 
         <button
           onClick={handleRegister}

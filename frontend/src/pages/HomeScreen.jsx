@@ -17,36 +17,53 @@ const Home = () => {
   const [showLogout, setShowLogout] = useState(false);
 
   const fetchTasks = async () => {
+    if (!userId) return; // safety check
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/tasks?userId=${userId}&filter=${filter}`
-      );
+      const res = await axios.get(`http://localhost:8000/api/v1/task/${userId}`);
       setTasks(res.data);
-    } catch {
+    } catch (error) {
       alert("Failed to fetch tasks");
+      console.error(error);
     }
   };
 
   useEffect(() => {
     fetchTasks();
-  }, [filter]);
+  }, []);
+
 
   const handleAdd = async () => {
     if (!title.trim()) return;
-    await axios.post("http://localhost:5000/api/tasks/add", { title, userId });
-    setTitle("");
-    fetchTasks();
+    try {
+      await axios.post("http://localhost:8000/api/v1/task/add", { title, userId });
+      setTitle("");
+      await fetchTasks();
+    } catch (error) {
+      console.error("Failed to add task:", error);
+      alert("Failed to add task");
+    }
   };
 
   const handleToggle = async (id) => {
-    await axios.patch(`http://localhost:5000/api/tasks/toggle-complete/${id}`);
-    fetchTasks();
+    try {
+      await axios.patch(`http://localhost:8000/api/v1/task/toggle-complete/${id}`);
+      await fetchTasks();
+    } catch (error) {
+      console.error("Failed to toggle task:", error);
+      alert("Failed to toggle task completion");
+    }
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:5000/api/tasks/delete/${id}`);
-    fetchTasks();
+    try {
+      await axios.delete(`http://localhost:8000/api/v1/task/delete/${id}`);
+      await fetchTasks();
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+      alert("Failed to delete task");
+    }
   };
+
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
