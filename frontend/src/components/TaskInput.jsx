@@ -1,22 +1,32 @@
-import React from "react";
+// src/components/TaskInput.jsx
+import React, { useState } from "react";
 
-const TaskInput = ({ title, setTitle, onAdd }) => {
+const TaskInput = ({ onAdd }) => {
+  const [title, setTitle] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    onAdd(title);
+    setTitle("");
+  };
+
   return (
-    <div className="flex gap-4 mb-4">
+    <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
       <input
         type="text"
         placeholder="Add new task"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="flex-1 p-2 border rounded"
+        className="flex-grow p-2 border rounded"
       />
       <button
-        onClick={onAdd}
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        type="submit"
+        className="bg-blue-600 text-white px-4 rounded hover:bg-blue-700"
       >
         Add
       </button>
-    </div>
+    </form>
   );
 };
 

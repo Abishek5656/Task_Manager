@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { Backend_Url } from "../constant.js"
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -24,13 +25,14 @@ const Register = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:8000/api/v1/users/add", {
+      const res = await axios.post(`${Backend_Url}/users/add`, {
         username,
         password,
       });
 
       if (res.status === 201 || res.status === 200) {
-        localStorage.setItem("userId", res.data._id);
+
+       localStorage.setItem("userId", res.data.user._id);
         toast.success("Registration successful!");
         navigate("/home");
       } else {

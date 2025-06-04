@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { Backend_Url } from "../constant.js"
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -17,7 +18,7 @@ const Login = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:8000/api/v1/users/login", {
+      const res = await axios.post(`${Backend_Url}/users/login`, {
         username,
         password,
       });
@@ -26,6 +27,7 @@ const Login = () => {
         localStorage.setItem("userId", res.data.user._id);
         toast.success("Login successful!");
         navigate("/home");
+        window.location.reload(); 
       } else {
         toast.error("Invalid credentials");
       }

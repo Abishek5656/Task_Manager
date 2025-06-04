@@ -1,20 +1,18 @@
-import React, { useMemo } from "react";
-import { MdCheck } from "react-icons/md";
+import React from "react";
 
-const TaskList = ({ tasks, filter, setFilter, onToggle, onDelete, search }) => {
-  const filteredTasks = useMemo(() => {
-    let filtered = tasks;
-    if (filter === "completed") filtered = tasks.filter((t) => t.isCompleted);
-    if (filter === "pending") filtered = tasks.filter((t) => !t.isCompleted);
-    if (search)
-      filtered = filtered.filter((t) =>
-        t.title.toLowerCase().includes(search.toLowerCase())
-      );
-    return filtered;
-  }, [filter, tasks, search]);
+const TaskList = ({ tasks, filter, setFilter, search, onToggle, onDelete }) => {
+  const filteredTasks = (tasks || []).filter((task) => {
+    const matchesSearch = task.title.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "completed" && task.isCompleted) ||
+      (filter === "pending" && !task.isCompleted);
+    return matchesSearch && matchesFilter;
+  });
 
   return (
-    <>
+    <div>
+      {/* Filters */}
       <div className="flex gap-2 mb-4">
         {["all", "completed", "pending"].map((f) => (
           <button
@@ -29,59 +27,39 @@ const TaskList = ({ tasks, filter, setFilter, onToggle, onDelete, search }) => {
         ))}
       </div>
 
-      <section className="bg-white shadow-md rounded-md p-4">
-        {filteredTasks.length === 0 ? (
-          <p className="text-gray-500 text-center">No tasks found.</p>
-        ) : (
-          <ul className="divide-y divide-gray-200">
-            {filteredTasks.map((task) => (
-              <li
-                key={task._id}
-                className="flex justify-between items-center py-2"
+      {/* Task List */}
+      {filteredTasks.length === 0 ? (
+        <p className="text-gray-500 text-center">No tasks found.</p>
+      ) : (
+        <ul className="space-y-2">
+          {filteredTasks.map(({ _id, title, isCompleted }) => (
+            <li
+              key={_id}
+              className="flex justify-between items-center p-2 border rounded bg-white shadow"
+            >
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={!!isCompleted} // Ensure boolean
+                  onChange={() => onToggle(_id)}
+                  className="cursor-pointer"
+                />
+                <span className={isCompleted ? "line-through text-gray-500" : ""}>
+                  {title}
+                </span>
+              </label>
+              <button
+                onClick={() => onDelete(_id)}
+                className="text-red-600 hover:text-red-800"
+                aria-label={`Delete task ${title}`}
               >
-                <div className="flex items-center">
-                  {/* Checkbox area */}
-                  <button
-                    onClick={() => onToggle(task._id)}
-                    aria-label={
-                      task.isCompleted
-                        ? "Mark as incomplete"
-                        : "Mark as complete"
-                    }
-                    className={`flex items-center justify-center w-6 h-6 mr-3 border-2 rounded-md focus:outline-none ${
-                      task.isCompleted
-                        ? "bg-blue-600 border-blue-600 text-white"
-                        : "border-gray-400 text-transparent"
-                    }`}
-                  >
-                    {task.isCompleted && <MdCheck size={18} />}
-                  </button>
-
-                  {/* Task title */}
-                  <span
-                    className={`select-none ${
-                      task.isCompleted
-                        ? "line-through text-gray-400"
-                        : "text-gray-800"
-                    }`}
-                  >
-                    {task.title}
-                  </span>
-                </div>
-
-                {/* Delete button */}
-                <button
-                  onClick={() => onDelete(task._id)}
-                  className="text-red-600 hover:underline"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </>
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 };
 

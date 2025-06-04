@@ -1,98 +1,45 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-import Navbar from "../components/Navbar";
+// src/screens/HomeScreen.jsx
+import React, { useState } from "react";
 import TaskInput from "../components/TaskInput";
 import TaskList from "../components/TaskList";
+import { useTasks } from "../hooks/useTasks";
 
-const Home = () => {
-  const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
+import Navbar from "../components/Navbar.jsx";
+import { useNavbar } from "../hooks/useCustom.js";
 
-  const [tasks, setTasks] = useState([]);
+const HomeScreen = () => {
   const [filter, setFilter] = useState("all");
-  const [title, setTitle] = useState("");
-  const [search, setSearch] = useState("");
-  const [showLogout, setShowLogout] = useState(false);
-
-  const fetchTasks = async () => {
-    if (!userId) return; // safety check
-    try {
-      const res = await axios.get(`http://localhost:8000/api/v1/task/${userId}`);
-      setTasks(res.data);
-    } catch (error) {
-      alert("Failed to fetch tasks");
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
-
-  const handleAdd = async () => {
-    if (!title.trim()) return;
-    try {
-      await axios.post("http://localhost:8000/api/v1/task/add", { title, userId });
-      setTitle("");
-      await fetchTasks();
-    } catch (error) {
-      console.error("Failed to add task:", error);
-      alert("Failed to add task");
-    }
-  };
-
-  const handleToggle = async (id) => {
-    try {
-      await axios.patch(`http://localhost:8000/api/v1/task/toggle-complete/${id}`);
-      await fetchTasks();
-    } catch (error) {
-      console.error("Failed to toggle task:", error);
-      alert("Failed to toggle task completion");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8000/api/v1/task/delete/${id}`);
-      await fetchTasks();
-    } catch (error) {
-      console.error("Failed to delete task:", error);
-      alert("Failed to delete task");
-    }
-  };
-
-
-  const handleLogout = () => {
-    localStorage.removeItem("userId");
-    navigate("/");
-  };
+  const { search, setSearch, showLogout, setShowLogout, onLogout } = useNavbar();
+  const { tasks, loading, addTask, toggleTask, deleteTask } = useTasks();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="max-w-xl mx-auto p-4">
       <Navbar
         search={search}
         setSearch={setSearch}
         showLogout={showLogout}
         setShowLogout={setShowLogout}
-        onLogout={handleLogout}
+        onLogout={onLogout}
       />
-      <div className="max-w-3xl mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-6">Task Manager</h2>
-        <TaskInput title={title} setTitle={setTitle} onAdd={handleAdd} />
+
+      <h1 className="text-3xl font-bold mb-4 text-center">Task Manager</h1>
+
+      <TaskInput onAdd={addTask} />
+
+      {loading ? (
+        <p className="text-center text-gray-500">Loading tasks...</p>
+      ) : (
         <TaskList
           tasks={tasks}
           filter={filter}
           setFilter={setFilter}
-          onToggle={handleToggle}
-          onDelete={handleDelete}
           search={search}
+          onToggle={toggleTask}
+          onDelete={deleteTask}
         />
-      </div>
+      )}
     </div>
   );
 };
 
-export default Home;
+export default HomeScreen;
