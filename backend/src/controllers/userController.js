@@ -2,26 +2,56 @@ import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 
 // Create a new user
+// export const addUser = async (req, res) => {
+//   try {
+//     const { username, password } = req.body;
+
+//     const existingUser = await User.findOne({ username });
+//     if (existingUser) {
+//       return res.status(400).json({ message: "Username already exists" });
+//     }
+
+//     const saltRounds = 10;
+//     const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+//     const user = new User({ username, hashedPassword });
+//     await user.save();
+
+//     res.status(201).json({ message: "User created successfully",data: user });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error",data: error });
+//   }
+// };
+
 export const addUser = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // Validate presence of username/password
+    if (!username || !password) {
+      return res.status(400).json({ message: "Username and password are required" });
+    }
+
+    // Check if user exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ message: "Username already exists" });
     }
 
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Hash password (example with bcrypt)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({ username, hashedPassword });
+    // Create new user with hashed password
+    const user = new User({ username, password: hashedPassword });
     await user.save();
 
-    res.status(201).json({ message: "User created successfully",data: user });
+    res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
-    res.status(500).json({ message: "Server error",data: error });
+    console.error("Error in addUser:", error); // <== Log the error here
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 // Update user
 export const updateUser = async (req, res) => {
@@ -78,27 +108,22 @@ export const getUserById = async (req, res) => {
 
 export const getLogin = async (req, res) => {
   try {
-    // It's best to use POST for login, but if you want GET:
-    // Extract username and password from query (GET) or from body (POST)
-    const { username, password } = req.method === "POST" ? req.body : req.query;
+    const { username, password } = req.body;
 
     if (!username || !password) {
       return res.status(400).json({ message: "Username and password are required" });
     }
 
-    // Find user by username
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Compare password with hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Success: return user info (avoid returning password)
     const userResponse = {
       _id: user._id,
       username: user.username,

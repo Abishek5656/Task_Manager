@@ -7,9 +7,9 @@ const app = express()
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
-    methods:['POST'],
-    credentials: true
-}))
+    methods: ['POST', 'GET', 'PUT', 'DELETE'],  
+}));
+
 
 app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended: true, limit: "16kb"}))
