@@ -11,9 +11,9 @@ import {
 const router = express.Router();
 
 router.post("/add", createTask);                   // Create task
-router.get("/", getTasks);                         // Read tasks (filter via query)
+router.get("/:userId", getTasks);                         // Read tasks (filter via query)
 router.put("/update/:id", updateTask);             // Update title/content
 router.patch("/toggle-complete/:id", toggleTaskCompletion); // Mark complete/incomplete
-router.delete("/delete/:id", deleteTask);          // Delete task
+router.delete("/delete/:id", deleteTask);  // Delete task
 
 export default router;
