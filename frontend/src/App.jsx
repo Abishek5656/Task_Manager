@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 const Login = lazy(() => import("./pages/LoginScreen.jsx"));
 const Home = lazy(() => import("./pages/HomeScreen.jsx"));
+const Register = lazy(() => import("./pages/RegisterScreen.jsx"));
 
 function App() {
   const isLoggedIn = localStorage.getItem("userId");
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
           <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/" />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </Suspense>
     </Router>
